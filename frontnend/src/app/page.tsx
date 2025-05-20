@@ -1,15 +1,14 @@
 "use client";
-
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [qr, setQr] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [paymentId, setPaymentId] = useState<string | null>(null);
+  const BACKEND_URL = "https://qpay-mock.onrender.com";
 
   const startPayment = async () => {
-    const res = await fetch("http://localhost:8000/create-payment", {
+    const res = await fetch(`${BACKEND_URL}/create-payment`, {
       method: "POST",
     });
     const data = await res.json();
@@ -20,7 +19,7 @@ export default function Home() {
   useEffect(() => {
     if (!paymentId) return;
 
-    const ws = new WebSocket("ws://localhost:8000");
+    const ws = new WebSocket(BACKEND_URL.replace("https", "wss"));
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: "watch", paymentId }));
@@ -54,7 +53,6 @@ export default function Home() {
       {qr && (
         <div style={{ marginTop: "2rem" }}>
           <p>Scan this QR code to pay:</p>
-          <Image src={qr} alt="qr code" />
           <img src={qr} alt="QR Code" />
         </div>
       )}

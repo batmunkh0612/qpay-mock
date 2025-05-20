@@ -3,37 +3,32 @@ import QRCode from 'qrcode';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
-const port = 8000;
+const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Store payments in-memory (replace with DB in real app)
 const payments = new Map();
-const clients = new Map(); // WebSocket clients by paymentId
+const clients = new Map();
 
-// Serve frontend files
-import path from 'path';
-import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Create QR and payment entry
 app.post('/create-payment', async (req, res) => {
     const paymentId = uuidv4();
     payments.set(paymentId, { status: 'pending' });
 
-    const qrUrl = `http://localhost:8000/pay/${paymentId}`;
+    const qrUrl = `https://qpay-mock.onrender.com/pay/${paymentId}`;
     const qr = await QRCode.toDataURL(qrUrl);
 
     res.json({ paymentId, qr });
     console.error('working')
 });
 
-// Simulate scan & payment (QR scan triggers this)
-// Simulate scan & payment (QR scan triggers this)
 app.get('/pay/:paymentId', (req, res) => {
     const { paymentId } = req.params;
 
